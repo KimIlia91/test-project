@@ -104,7 +104,7 @@ export const selectTotalWithDiscount = createSelector(
     [(state: RootState) => state.products.data, selectDiscount],
     (products, discount) => {
         const total = products.reduce((acc, product) => acc + product.total, 0)
-        if (total > DISCOUNT_THRESHOLD) {
+        if (total >= DISCOUNT_THRESHOLD) {
             return total - discount
         }
 
