@@ -28,7 +28,7 @@ const createProduct = (product: Product): ProductState => {
     return {
         ...product,
         orderedQuantity: 0,
-        total: 0
+        total: 0,
     }
 }
 
@@ -53,24 +53,22 @@ const productsSlice = createSlice({
     reducers: {
         incrementOrderedQuantity: (state, action: PayloadAction<number>) => {
             const productId = action.payload
-            const updatedData = state.data.map(product => {
-                if (product.id === productId && product.availableCount > 0) {
-                    return {
-                        ...product,
-                        availableCount: product.availableCount - 1,
-                        orderedQuantity: product.orderedQuantity + 1,
-                        total: product.price * (product.orderedQuantity + 1),
-                    };
+            const productIndex = state.data.findIndex(product => product.id === productId)
+            if (productIndex !== -1 && state.data[productIndex].availableCount > 0) {
+                const updatedData = [...state.data]
+                const updatedProduct = {
+                    ...updatedData[productIndex],
+                    availableCount: updatedData[productIndex].availableCount - 1,
+                    orderedQuantity: updatedData[productIndex].orderedQuantity + 1,
+                    total: updatedData[productIndex].price * (updatedData[productIndex].orderedQuantity + 1),
                 }
 
-                return product
-            })
-
-            const updatedTotal = state.total + (updatedData.find(product => product.id === productId)?.price || 0)
-            return {
-                ...state,
-                data: updatedData,
-                total: updatedTotal,
+                updatedData[productIndex] = updatedProduct
+                return {
+                    ...state,
+                    data: updatedData,
+                    total: state.total + updatedProduct.price,
+                }
             }
         },
         decrementOrderedQuantity: (state, action: PayloadAction<number>) => {
@@ -82,18 +80,18 @@ const productsSlice = createSlice({
                         availableCount: product.availableCount + 1,
                         orderedQuantity: product.orderedQuantity - 1,
                         total: product.price * (product.orderedQuantity - 1),
-                    };
+                    }
                 }
 
                 return product
-            })
-        
+            });
+
             const updatedProduct = updatedData.find(product => product.id === productId)
-            const updatedTotal = state.total - (updatedProduct?.price || 0)
+            const priceDifference = updatedProduct ? updatedProduct.price : 0
             return {
                 ...state,
                 data: updatedData,
-                total: updatedTotal,
+                total: state.total - priceDifference,
             }
         },
     },
