@@ -53,24 +53,49 @@ const productsSlice = createSlice({
     reducers: {
         incrementOrderedQuantity: (state, action: PayloadAction<number>) => {
             const productId = action.payload
-            const product = state.data.find((product) => product.id === productId)
-            if (product && product.availableCount > 0) {
-                product.availableCount = product.availableCount - 1
-                product.orderedQuantity = product.orderedQuantity + 1
-                product.total = product.price * product.orderedQuantity
-                state.total = state.total + product.price
+            const updatedData = state.data.map(product => {
+                if (product.id === productId && product.availableCount > 0) {
+                    return {
+                        ...product,
+                        availableCount: product.availableCount - 1,
+                        orderedQuantity: product.orderedQuantity + 1,
+                        total: product.price * (product.orderedQuantity + 1),
+                    };
+                }
+
+                return product
+            })
+
+            const updatedTotal = state.total + (updatedData.find(product => product.id === productId)?.price || 0)
+            return {
+                ...state,
+                data: updatedData,
+                total: updatedTotal,
             }
         },
         decrementOrderedQuantity: (state, action: PayloadAction<number>) => {
             const productId = action.payload
-            const product = state.data.find((product) => product.id === productId)
-            if (product && product.orderedQuantity > 0) {
-                product.availableCount = product.availableCount + 1
-                product.orderedQuantity = product.orderedQuantity - 1
-                product.total = product.price * product.orderedQuantity
-                state.total = state.total - product.price
-            } 
-        }
+            const updatedData = state.data.map(product => {
+                if (product.id === productId && product.orderedQuantity > 0) {
+                    return {
+                        ...product,
+                        availableCount: product.availableCount + 1,
+                        orderedQuantity: product.orderedQuantity - 1,
+                        total: product.price * (product.orderedQuantity - 1),
+                    };
+                }
+
+                return product
+            })
+        
+            const updatedProduct = updatedData.find(product => product.id === productId)
+            const updatedTotal = state.total - (updatedProduct?.price || 0)
+            return {
+                ...state,
+                data: updatedData,
+                total: updatedTotal,
+            }
+        },
     },
     extraReducers(builder) {
         builder
@@ -81,6 +106,7 @@ const productsSlice = createSlice({
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.loading = false
                 state.data = action.payload.map(createProduct)
+                state.error = null
             })
             .addCase(fetchProducts.rejected, (state, action) =>{
                 state.loading = false
