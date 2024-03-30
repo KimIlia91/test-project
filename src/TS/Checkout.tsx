@@ -115,7 +115,7 @@ const Checkout = () => {
                             </tbody>
                         </table>
                         <h2>Order summary</h2>
-                        {discount === NO_DISCOUNT ? null : <p>Discount: {discount.toFixed(2)}$ </p>}
+                        {discount === NO_DISCOUNT ? null : <p>Discount: {(Math.floor(discount * 100) / 100).toFixed(2)}$ </p>}
                         <p>Total: {total.toFixed(2)}$ </p>
                     </>
                 )}
