@@ -72,28 +72,28 @@ const productsSlice = createSlice({
             }
         },
         decrementOrderedQuantity: (state, action: PayloadAction<number>) => {
-            const productId = action.payload;
-            const productIndex = state.data.findIndex(product => product.id === productId);
+            const productId = action.payload
+            const productIndex = state.data.findIndex(product => product.id === productId)
 
             if (productIndex !== -1 && state.data[productIndex].orderedQuantity > 0) {
-                const updatedData = [...state.data];
+                const updatedData = [...state.data]
                 const updatedProduct = {
                     ...updatedData[productIndex],
                     availableCount: updatedData[productIndex].availableCount + 1,
                     orderedQuantity: updatedData[productIndex].orderedQuantity - 1,
                     total: updatedData[productIndex].price * (updatedData[productIndex].orderedQuantity - 1),
-                };
+                }
 
-                updatedData[productIndex] = updatedProduct;
-                const priceDifference = updatedProduct.price;
+                updatedData[productIndex] = updatedProduct
+                const priceDifference = updatedProduct.price
                 return {
                     ...state,
                     data: updatedData,
                     total: state.total - priceDifference,
-                };
+                }
             }
 
-            return state;
+            return state
         },
     },
     extraReducers(builder) {
