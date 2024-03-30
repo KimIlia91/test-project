@@ -72,27 +72,28 @@ const productsSlice = createSlice({
             }
         },
         decrementOrderedQuantity: (state, action: PayloadAction<number>) => {
-            const productId = action.payload
-            const updatedData = state.data.map(product => {
-                if (product.id === productId && product.orderedQuantity > 0) {
-                    return {
-                        ...product,
-                        availableCount: product.availableCount + 1,
-                        orderedQuantity: product.orderedQuantity - 1,
-                        total: product.price * (product.orderedQuantity - 1),
-                    }
-                }
+            const productId = action.payload;
+            const productIndex = state.data.findIndex(product => product.id === productId);
 
-                return product
-            });
+            if (productIndex !== -1 && state.data[productIndex].orderedQuantity > 0) {
+                const updatedData = [...state.data];
+                const updatedProduct = {
+                    ...updatedData[productIndex],
+                    availableCount: updatedData[productIndex].availableCount + 1,
+                    orderedQuantity: updatedData[productIndex].orderedQuantity - 1,
+                    total: updatedData[productIndex].price * (updatedData[productIndex].orderedQuantity - 1),
+                };
 
-            const updatedProduct = updatedData.find(product => product.id === productId)
-            const priceDifference = updatedProduct ? updatedProduct.price : 0
-            return {
-                ...state,
-                data: updatedData,
-                total: state.total - priceDifference,
+                updatedData[productIndex] = updatedProduct;
+                const priceDifference = updatedProduct.price;
+                return {
+                    ...state,
+                    data: updatedData,
+                    total: state.total - priceDifference,
+                };
             }
+
+            return state;
         },
     },
     extraReducers(builder) {
